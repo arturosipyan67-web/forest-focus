@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лес</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { margin: 0; background: #050a05; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .box { background: rgba(20,30,20,0.9); padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2e7d32; }
+        #gate { position: absolute; inset: 0; background: #050a05; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .time { font-size: 60px; margin: 20px 0; font-weight: 100; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .btn-s { background: #1b2e1b; border: 1px solid #2e7d32; color: white; padding: 15px; border-radius: 12px; font-size: 20px; cursor: pointer; }
+        .btn-s.active { background: #4caf50; }
+        .task-in { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-bottom: 10px; }
+        .start { background: #4caf50; color: white; border: none; padding: 18px; width: 100%; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        #skip { margin-top: 20px; color: #4caf50; text-decoration: underline; background: none; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="gate">
+        <h1>Лес 🌲</h1>
+        <div id="g_id_onload" data-client_id="891111673095-plvnddomg2cfhmg98a96mbfhtfmtdkof.apps.googleusercontent.com" data-callback="onAuth"></div>
+        <div class="g_id_signin" data-type="standard"></div>
+        <button id="skip" onclick="go()">ВОЙТИ БЕЗ ГУГЛА (ЕСЛИ НЕ ГРУЗИТ)</button>
+    </div>
+
+    <div class="box">
+        <div class="time" id="t">25:00</div>
+        <div class="grid">
+            <button class="btn-s" onclick="snd('forest', this)">🌲</button>
+            <button class="btn-s" onclick="snd('rain', this)">🌧️</button>
+            <button class="btn-s" onclick="snd('fire', this)">🔥</button>
+            <button class="btn-s" onclick="snd('ocean', this)">🌊</button>
+            <button class="btn-s" onclick="snd('birds', this)">🐦</button>
+            <button class="btn-s" onclick="snd('off', this)">🔇</button>
+        </div>
+        <input type="text" id="i" class="task-in" placeholder="Твоя цель...">
+        <button class="start" id="run" onclick="start()">ПУСК</button>
+    </div>
+
+    <audio id="s-forest" loop src="https://www.soundjay.com/nature/forest-wind-01.mp3"></audio>
+    <audio id="s-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+    <audio id="s-fire" loop src="https://www.soundjay.com/nature/fire-1.mp3"></audio>
+    <audio id="s-ocean" loop src="https://www.soundjay.com/nature/ocean-wave-1.mp3"></audio>
+    <audio id="s-birds" loop src="https://www.soundjay.com/nature/birds-chirping-01.mp3"></audio>
+
+<script>
+    let sec = 25 * 60, timer = null, track = null;
+
+    function onAuth(r) { go(); }
+    function go() { document.getElementById('gate').style.display = 'none'; }
+
+    function snd(type, el) {
+        if(track) track.pause();
+        document.querySelectorAll('.btn-s').forEach(b => b.classList.remove('active'));
+        if(type === 'off') return;
+        track = document.getElementById('s-' + type);
+        el.classList.add('active');
+        if(timer) track.play();
+    }
+
+    function start() {
+        const b = document.getElementById('run');
+        if(timer) {
+            clearInterval(timer); timer = null;
+            if(track) track.pause();
+            b.innerText = "ПРОДОЛЖИТЬ";
+        } else {
+            if(track) track.play();
+            b.innerText = "ПАУЗА";
+            timer = setInterval(() => {
+                sec--;
+                let m = Math.floor(sec/60), s = sec%60;
+                document.getElementById('t').innerText = `${m}:${s<10?'0':''}${s}`;
+                if(sec <= 0) { clearInterval(timer); alert("Финиш!"); location.reload(); }
+            }, 1000);
+        }
+    }
+</script>
+</body>
+</html>
